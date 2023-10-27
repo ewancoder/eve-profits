@@ -147,6 +147,20 @@ public sealed record OreInfo(
 {
     public decimal BoughtForPercentage => 100m * itemBoughtFor / totalBuyPrice;
 
+    public decimal BuyPriceForOne => totalBuyPrice / amount;
+    public decimal SellPriceForOne => totalSellPrice / amount;
+
+    public OreInfo Sell(decimal amountParam)
+    {
+        return this with
+        {
+            amount = amount - amountParam,
+            totalBuyPrice = totalBuyPrice - (amountParam * totalBuyPrice / amount),
+            totalSellPrice = totalSellPrice - (amountParam * totalSellPrice / amount),
+            itemBoughtFor = itemBoughtFor - (amountParam * itemBoughtFor / amount)
+        };
+    }
+
     public OreInfo Merge(JaniceItemAppraisal itemAppraisal, decimal itemBoughtForParam)
     {
         if (itemAppraisal.type != type)
