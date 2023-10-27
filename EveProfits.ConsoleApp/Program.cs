@@ -62,7 +62,17 @@ while (true)
 
     foreach (var ore in allOre.Values.OrderBy(x => x.type))
     {
-        Console.WriteLine($"{ore.type.PadRight(40)}{Math.Floor(ore.amount).ToString().PadRight(10)}{FormatPrice(ore.totalBuyPrice).PadLeft(20)}{FormatPrice(ore.itemBoughtFor).PadLeft(20)} [ {ore.BoughtForPercentage.ToString("0.00")} ]");
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.Write($"{ore.type.PadRight(40)}{Math.Floor(ore.amount).ToString().PadRight(10)}{FormatPrice(ore.totalBuyPrice).PadLeft(20)}{FormatPrice(ore.itemBoughtFor).PadLeft(20)} [ {ore.BoughtForPercentage.ToString("0.00")} ]");
+
+        Console.ForegroundColor = ore.totalSellPrice > ore.MinimumSellPrice
+            ? ConsoleColor.Green
+            : ConsoleColor.Red;
+
+        Console.Write($"{FormatPrice(Math.Ceiling(ore.MinimumSellPrice)).ToString().PadLeft(20)} - {FormatPrice(Math.Ceiling(ore.MinimumSellPriceForOne)).PadRight(10)}");
+
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.WriteLine($"{FormatPrice(ore.totalSellPrice)}");
     }
 }
 
@@ -145,10 +155,18 @@ public sealed record OreInfo(
     decimal totalSellPrice,
     decimal itemBoughtFor)
 {
+    public static decimal PushXPriceFor1_5Bil = 44_000_000;
+
+    // TODO: Consider using ACTUAL sell price.
+    public decimal PushXPrice => totalSellPrice * PushXPriceFor1_5Bil / 1_500_000_000m;
+
     public decimal BoughtForPercentage => 100m * itemBoughtFor / totalBuyPrice;
 
     public decimal BuyPriceForOne => totalBuyPrice / amount;
     public decimal SellPriceForOne => totalSellPrice / amount;
+
+    public decimal MinimumSellPrice => itemBoughtFor / (1m - (4.63m / 100)) + PushXPrice;
+    public decimal MinimumSellPriceForOne => MinimumSellPrice / amount;
 
     public OreInfo Sell(decimal amountParam)
     {
