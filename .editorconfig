@@ -279,6 +279,9 @@ dotnet_diagnostic.CA1019.severity = silent
 # Remove missing XML documentation warnings, I'll add it where needed.
 dotnet_diagnostic.CS1591.severity = silent
 
+# Proposes to change if/throw into return ? throw : return
+dotnet_diagnostic.IDE0270.severity = warning # Not an error, I prefer my style
+
 
 
 # === Tests ===
