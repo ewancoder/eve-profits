@@ -9,6 +9,7 @@ var services = new ServiceCollection();
 services.AddHttpClient();
 services.AddTransient<IPushXApiClient, PushXApiClient>();
 services.Decorate<IPushXApiClient, CachedPushXApiClient>();
+services.AddTransient<IJaniceApiClient, JaniceApiClient>();
 var container = services.BuildServiceProvider();
 
 while (true)
@@ -19,7 +20,14 @@ while (true)
     var price = await pushx.GetPriceAsync("Inder", "Jita", 150_000, 3_000_000_000, default)
         .ConfigureAwait(false);
 
+    var janice = container.GetRequiredService<IJaniceApiClient>();
+    await foreach (var item in janice.GetItemAppraisalsByIdAsync("Vnt9CT"))
+    {
+        _ = item;
+    }
+
     Console.WriteLine($"Price: {price}");
+    _ = input;
 }
 
 static AddBuyback ReadAddBuybackCommand()
