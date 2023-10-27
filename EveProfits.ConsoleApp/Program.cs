@@ -39,12 +39,21 @@ while (true)
     {
         if (@event.addBuyback != null)
         {
-            await foreach (var item in janice.GetItemAppraisalsByIdAsync(@event.addBuyback.Janice))
+            var appraisal = await janice.GetAppraisalByIdAsync(@event.addBuyback.Janice)
+                .ConfigureAwait(false);
+
+            var boughtFor = @event.addBuyback.Price;
+            var jitaBuy = appraisal.totalBuyPrice;
+            var boughtForPercentage = 100m * boughtFor / jitaBuy;
+
+            foreach (var item in appraisal.items)
             {
+                var itemBoughtFor = item.buyPrice * boughtForPercentage / 100m;
+
                 if (!allOre.ContainsKey(item.type))
-                    allOre.Add(item.type, OreInfo.From(item));
+                    allOre.Add(item.type, OreInfo.From(item, itemBoughtFor));
                 else
-                    allOre[item.type] = allOre[item.type].Merge(item);
+                    allOre[item.type] = allOre[item.type].Merge(item, itemBoughtFor);
             }
         }
     }
@@ -53,8 +62,17 @@ while (true)
 
     foreach (var ore in allOre.Values.OrderBy(x => x.type))
     {
-        Console.WriteLine($"{ore.type.PadRight(40)}{Math.Floor(ore.amount).ToString().PadRight(10)}{Math.Floor(ore.totalBuyPrice).ToString("N0", new NumberFormatInfo { NumberGroupSizes = new[] { 3 }, NumberGroupSeparator = " " }).PadLeft(15)}");
+        Console.WriteLine($"{ore.type.PadRight(40)}{Math.Floor(ore.amount).ToString().PadRight(10)}{FormatPrice(ore.totalBuyPrice).PadLeft(20)}{FormatPrice(ore.itemBoughtFor).PadLeft(20)} [ {ore.BoughtForPercentage.ToString("0.00")} ]");
     }
+}
+
+static string FormatPrice(decimal price)
+{
+    return Math.Floor(price).ToString("N0", new NumberFormatInfo
+    {
+        NumberGroupSizes = new[] { 3 },
+        NumberGroupSeparator = " "
+    });
 }
 
 static AddBuyback? ReadAddBuybackCommand()
@@ -124,9 +142,12 @@ public sealed record OreInfo(
     string type,
     decimal amount,
     decimal totalBuyPrice,
-    decimal totalSellPrice)
+    decimal totalSellPrice,
+    decimal itemBoughtFor)
 {
-    public OreInfo Merge(JaniceItemAppraisal itemAppraisal)
+    public decimal BoughtForPercentage => 100m * itemBoughtFor / totalBuyPrice;
+
+    public OreInfo Merge(JaniceItemAppraisal itemAppraisal, decimal itemBoughtForParam)
     {
         if (itemAppraisal.type != type)
             throw new InvalidOperationException("Could not merge different types.");
@@ -135,12 +156,13 @@ public sealed record OreInfo(
         {
             amount = amount + itemAppraisal.volume,
             totalBuyPrice = totalBuyPrice + itemAppraisal.buyPrice,
-            totalSellPrice = totalSellPrice + itemAppraisal.sellPrice
+            totalSellPrice = totalSellPrice + itemAppraisal.sellPrice,
+            itemBoughtFor = itemBoughtFor + itemBoughtForParam
         };
     }
 
-    public static OreInfo From(JaniceItemAppraisal itemAppraisal)
+    public static OreInfo From(JaniceItemAppraisal itemAppraisal, decimal itemBoughtForParam)
     {
-        return new OreInfo(itemAppraisal.type, itemAppraisal.amount, itemAppraisal.buyPrice, itemAppraisal.sellPrice);
+        return new OreInfo(itemAppraisal.type, itemAppraisal.amount, itemAppraisal.buyPrice, itemAppraisal.sellPrice, itemBoughtForParam);
     }
 }

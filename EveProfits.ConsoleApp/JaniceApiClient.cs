@@ -1,10 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace EveProfits.ConsoleApp;
+
+public sealed record JaniceAppraisal(
+    decimal totalBuyPrice,
+    IEnumerable<JaniceItemAppraisal> items);
 
 public sealed record JaniceItemAppraisal(
     string type,
@@ -39,7 +45,7 @@ internal sealed record JaniceResponse(
 
 public interface IJaniceApiClient
 {
-    IAsyncEnumerable<JaniceItemAppraisal> GetItemAppraisalsByIdAsync(string id);
+    ValueTask<JaniceAppraisal> GetAppraisalByIdAsync(string id);
 }
 
 public sealed class JaniceApiClient : IJaniceApiClient
@@ -52,7 +58,7 @@ public sealed class JaniceApiClient : IJaniceApiClient
         _httpClientFactory = httpClientFactory;
     }
 
-    public async IAsyncEnumerable<JaniceItemAppraisal> GetItemAppraisalsByIdAsync(string id)
+    public async ValueTask<JaniceAppraisal> GetAppraisalByIdAsync(string id)
     {
         using var client = _httpClientFactory.CreateClient();
 
@@ -68,17 +74,14 @@ public sealed class JaniceApiClient : IJaniceApiClient
         if (janiceResponse == null)
             throw new InvalidOperationException("Could not deserialize Janice response.");
 
-        foreach (var item in janiceResponse.items)
-        {
-            var appraisal = new JaniceItemAppraisal(
-                item.itemType.name,
-                item.amount,
-                item.totalVolume,
-                item.effectivePrices.buyPriceTotal,
-                item.effectivePrices.sellPriceTotal);
+        var items = janiceResponse.items.Select(item => new JaniceItemAppraisal(
+            item.itemType.name,
+            item.amount,
+            item.totalVolume,
+            item.effectivePrices.buyPriceTotal,
+            item.effectivePrices.sellPriceTotal)).ToList();
 
-            yield return appraisal;
-        }
+        return new JaniceAppraisal(janiceResponse.effectivePrices.totalBuyPrice, items);
     }
 }
 
@@ -92,35 +95,24 @@ public sealed class CachedJaniceApiClient : IJaniceApiClient
         _client = client;
     }
 
-    public async IAsyncEnumerable<JaniceItemAppraisal> GetItemAppraisalsByIdAsync(string id)
+    public async ValueTask<JaniceAppraisal> GetAppraisalByIdAsync(string id)
     {
         var fileName = $"{FileNamePrefix}_{id}";
         if (File.Exists(fileName))
         {
-            var items = JsonSerializer.Deserialize<JaniceItemAppraisal[]>(await File.ReadAllTextAsync(fileName).ConfigureAwait(false));
-            if (items == null)
+            var appraisal = JsonSerializer.Deserialize<JaniceAppraisal>(await File.ReadAllTextAsync(fileName).ConfigureAwait(false));
+            if (appraisal == null)
                 throw new InvalidOperationException("Could not deserialize cached janice item.");
 
-            foreach (var item in items)
-            {
-                yield return item;
-            }
-
-            yield break;
+            return appraisal;
         }
 
-        var newItems = new List<JaniceItemAppraisal>();
-        await foreach (var item in _client.GetItemAppraisalsByIdAsync(id))
-        {
-            newItems.Add(item);
-        }
-
-        await File.WriteAllTextAsync(fileName, JsonSerializer.Serialize(newItems))
+        var newAppraisal = await _client.GetAppraisalByIdAsync(id)
             .ConfigureAwait(false);
 
-        foreach (var item in newItems)
-        {
-            yield return item;
-        }
+        await File.WriteAllTextAsync(fileName, JsonSerializer.Serialize(newAppraisal))
+            .ConfigureAwait(false);
+
+        return newAppraisal;
     }
 }
