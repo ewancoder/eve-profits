@@ -52,7 +52,6 @@ public sealed class PushXApiClient : IPushXApiClient
 
 public sealed class CachedPushXApiClient : IPushXApiClient
 {
-    private const string FileName = "pushxCache";
     private static readonly int[] _volumes = new[] { 12500, 62500, 360000, 848000, 1126500 };
 
     private readonly IPushXApiClient _client;
@@ -61,6 +60,8 @@ public sealed class CachedPushXApiClient : IPushXApiClient
     {
         _client = client;
     }
+
+    private string FileName => $"pushxCache_{DateOnly.FromDateTime(DateTime.UtcNow).DayNumber}";
 
     public async ValueTask<long> GetPriceAsync(string startSystemName, string endSystemName, int volume, long collateral, CancellationToken cancellationToken)
     {
