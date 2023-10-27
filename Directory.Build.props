@@ -1,0 +1,47 @@
+<Project>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+
+    <!-- All my projects here are targeting .NET 7.0 without exception. -->
+    <TargetFramework>net7.0</TargetFramework>
+
+    <!-- Experimenting with this. -->
+    <!--<ImplicitUsings>enable</ImplicitUsings>-->
+
+    <!-- Enables ALL analyzers instead of deprecated FxCop. -->
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <Choose>
+    <When Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
+      <PropertyGroup>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+      </PropertyGroup>
+    </When>
+  </Choose>
+
+  <!--<Choose>
+    <When Condition="$(MSBuildProjectName.EndsWith('.Api'))">
+      <PropertyGroup>
+        <GenerateDocumentationFile>True</GenerateDocumentationFile>
+      </PropertyGroup>
+    </When>
+  </Choose>-->
+
+  <ItemDefinitionGroup>
+    <!--<PackageReference>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>-->
+    <!--<ProjectReference>
+      <PrivateAssets>all</PrivateAssets>
+    </ProjectReference>-->
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>$(AssemblyName).Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+</Project>
