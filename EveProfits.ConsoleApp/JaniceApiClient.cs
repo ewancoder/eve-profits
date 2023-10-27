@@ -105,6 +105,8 @@ public sealed class CachedJaniceApiClient : IJaniceApiClient
             {
                 yield return item;
             }
+
+            yield break;
         }
 
         var newItems = new List<JaniceItemAppraisal>();
