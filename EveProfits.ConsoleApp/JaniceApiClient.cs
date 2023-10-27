@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Text.Json;
 
@@ -77,6 +78,47 @@ public sealed class JaniceApiClient : IJaniceApiClient
                 item.effectivePrices.sellPriceTotal);
 
             yield return appraisal;
+        }
+    }
+}
+
+public sealed class CachedJaniceApiClient : IJaniceApiClient
+{
+    private const string FileNamePrefix = "janice";
+    private readonly IJaniceApiClient _client;
+
+    public CachedJaniceApiClient(IJaniceApiClient client)
+    {
+        _client = client;
+    }
+
+    public async IAsyncEnumerable<JaniceItemAppraisal> GetItemAppraisalsByIdAsync(string id)
+    {
+        var fileName = $"{FileNamePrefix}_{id}";
+        if (File.Exists(fileName))
+        {
+            var items = JsonSerializer.Deserialize<JaniceItemAppraisal[]>(await File.ReadAllTextAsync(fileName).ConfigureAwait(false));
+            if (items == null)
+                throw new InvalidOperationException("Could not deserialize cached janice item.");
+
+            foreach (var item in items)
+            {
+                yield return item;
+            }
+        }
+
+        var newItems = new List<JaniceItemAppraisal>();
+        await foreach (var item in _client.GetItemAppraisalsByIdAsync(id))
+        {
+            newItems.Add(item);
+        }
+
+        await File.WriteAllTextAsync(fileName, JsonSerializer.Serialize(newItems))
+            .ConfigureAwait(false);
+
+        foreach (var item in newItems)
+        {
+            yield return item;
         }
     }
 }

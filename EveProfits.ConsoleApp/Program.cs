@@ -10,6 +10,7 @@ services.AddHttpClient();
 services.AddTransient<IPushXApiClient, PushXApiClient>();
 services.Decorate<IPushXApiClient, CachedPushXApiClient>();
 services.AddTransient<IJaniceApiClient, JaniceApiClient>();
+services.Decorate<IJaniceApiClient, CachedJaniceApiClient>();
 var container = services.BuildServiceProvider();
 
 while (true)
