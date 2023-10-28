@@ -34,6 +34,9 @@ while (true)
         .ConfigureAwait(false);
     _ = price;
 
+    var allOrePrices = await janice.GetAllOrePricesAsync()
+        .ConfigureAwait(false);
+
     allOre.Clear();
     foreach (var @event in storage.GetAllEvents())
     {
@@ -65,14 +68,17 @@ while (true)
         Console.ForegroundColor = ConsoleColor.White;
         Console.Write($"{ore.type.PadRight(40)}{Math.Floor(ore.amount).ToString().PadRight(10)}{FormatPrice(ore.totalBuyPrice).PadLeft(20)}{FormatPrice(ore.itemBoughtFor).PadLeft(20)} [ {ore.BoughtForPercentage.ToString("0.00")} ]");
 
-        Console.ForegroundColor = ore.totalSellPrice > ore.MinimumSellPrice
+        var immediateSellPrice = allOrePrices.First(x => x.Type == ore.type).SellPrice;
+        var totalImmediateSellPrice = immediateSellPrice * ore.amount;
+
+        Console.ForegroundColor = totalImmediateSellPrice > ore.MinimumSellPrice
             ? ConsoleColor.Green
             : ConsoleColor.Red;
 
         Console.Write($"{FormatPrice(Math.Ceiling(ore.MinimumSellPrice)).ToString().PadLeft(20)} - {FormatPrice(Math.Ceiling(ore.MinimumSellPriceForOne)).PadRight(10)}");
 
         Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine($"{FormatPrice(ore.totalSellPrice)}");
+        Console.WriteLine($"{FormatPrice(totalImmediateSellPrice)} - {FormatPrice(immediateSellPrice)}");
     }
 }
 
