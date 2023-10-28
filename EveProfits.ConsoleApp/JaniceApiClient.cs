@@ -46,7 +46,10 @@ internal sealed record JaniceResponse(
     JaniceSummaryPrices effectivePrices,
     JaniceItem[] items);
 
-public sealed record Price(string Type, decimal BuyPrice, decimal SellPrice);
+public sealed record Price(string Type, decimal BuyPrice, decimal SellPrice)
+{
+    public decimal SplitPrice => (BuyPrice + SellPrice) / 2m;
+}
 
 public interface IJaniceApiClient
 {

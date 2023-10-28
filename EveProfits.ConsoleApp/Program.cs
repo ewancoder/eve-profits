@@ -71,6 +71,10 @@ while (true)
         var immediateSellPrice = allOrePrices.First(x => x.Type == ore.type).SellPrice;
         var totalImmediateSellPrice = immediateSellPrice * ore.amount;
 
+        var immediateSplitPrice = allOrePrices.First(x => x.Type == ore.type).SplitPrice;
+        var totalImmediateSplitPrice = immediateSplitPrice * ore.amount;
+        var splitProfit = totalImmediateSplitPrice - ore.MinimumSellPrice; // TODO: Make sure it's calculated correctly.
+
         Console.ForegroundColor = totalImmediateSellPrice > ore.MinimumSellPrice
             ? ConsoleColor.Green
             : ConsoleColor.Red;
@@ -78,7 +82,12 @@ while (true)
         Console.Write($"{FormatPrice(Math.Ceiling(ore.MinimumSellPrice)).ToString().PadLeft(20)} - {FormatPrice(Math.Ceiling(ore.MinimumSellPriceForOne)).PadRight(10)}");
 
         Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine($"{FormatPrice(totalImmediateSellPrice)} - {FormatPrice(immediateSellPrice)}");
+        Console.Write($"{FormatPrice(totalImmediateSellPrice)} - {FormatPrice(immediateSellPrice)} [ {FormatPrice(splitProfit)} ]");
+
+        var oneItemBoughtFor = ore.itemBoughtFor / ore.amount;
+        var amountFor200Mil = 200_000_000 / oneItemBoughtFor;
+
+        Console.WriteLine($"{FormatPrice(amountFor200Mil).PadLeft(10)}");
     }
 }
 
