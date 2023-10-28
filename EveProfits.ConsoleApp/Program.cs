@@ -186,7 +186,7 @@ public sealed record OreInfo(
 
         return this with
         {
-            amount = amount + itemAppraisal.volume,
+            amount = amount + itemAppraisal.amount,
             totalBuyPrice = totalBuyPrice + itemAppraisal.buyPrice,
             totalSellPrice = totalSellPrice + itemAppraisal.sellPrice,
             itemBoughtFor = itemBoughtFor + itemBoughtForParam
