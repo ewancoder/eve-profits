@@ -165,7 +165,7 @@ public sealed record OreInfo(
     public decimal BuyPriceForOne => totalBuyPrice / amount;
     public decimal SellPriceForOne => totalSellPrice / amount;
 
-    public decimal MinimumSellPrice => itemBoughtFor / (1m - (4.63m / 100)) + PushXPrice;
+    public decimal MinimumSellPrice => (itemBoughtFor / (1m - (4.63m / 100))) + PushXPrice;
     public decimal MinimumSellPriceForOne => MinimumSellPrice / amount;
 
     public OreInfo Sell(decimal amountParam)
