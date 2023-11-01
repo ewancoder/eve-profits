@@ -75,7 +75,10 @@ public sealed class JaniceApiClient : IJaniceApiClient
         "Compressed Glistening Coesite",
         "Compressed Sylvite",
         "Compressed Brimful Sylvite",
-        "Compressed Glistening Sylvite"
+        "Compressed Glistening Sylvite",
+        "Compressed Veldspar",
+        "Compressed Dense Veldspar",
+        "Compressed Concentrated Veldspar"
     };
 
     public JaniceApiClient(IHttpClientFactory httpClientFactory)

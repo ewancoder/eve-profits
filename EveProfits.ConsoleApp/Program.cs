@@ -37,6 +37,8 @@ while (true)
     var allOrePrices = await janice.GetAllOrePricesAsync()
         .ConfigureAwait(false);
 
+    allOrePrices = allOrePrices.Concat(allOrePrices.Select(x => x with { Type = x.Type[11..] }));
+
     allOre.Clear();
     foreach (var @event in storage.GetAllEvents())
     {
