@@ -78,7 +78,12 @@ public sealed class JaniceApiClient : IJaniceApiClient
         "Compressed Glistening Sylvite",
         "Compressed Veldspar",
         "Compressed Dense Veldspar",
-        "Compressed Concentrated Veldspar"
+        "Compressed Concentrated Veldspar",
+        "Compressed Azure Plagioclase",
+        "Compressed Rich Plagioclase",
+        "Compressed Plagioclase",
+        "Compressed Condensed Scordite",
+        "Compressed Scordite"
     };
 
     public JaniceApiClient(IHttpClientFactory httpClientFactory)
