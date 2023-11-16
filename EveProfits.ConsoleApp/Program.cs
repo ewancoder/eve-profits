@@ -82,6 +82,9 @@ while (true)
             : ConsoleColor.Red;
 
         Console.Write($"{FormatPrice(Math.Ceiling(ore.MinimumSellPrice)).ToString().PadLeft(20)} - {FormatPrice(Math.Ceiling(ore.MinimumSellPriceForOne)).PadRight(10)}");
+        Console.Write("".PadLeft(6));
+        Console.Write($"{FormatPrice(Math.Floor(totalImmediateSellPrice - ore.MinimumSellPrice))}".PadRight(10));
+        Console.Write("".PadLeft(6));
 
         Console.ForegroundColor = ConsoleColor.White;
         Console.Write($"{FormatPrice(totalImmediateSellPrice)} - {FormatPrice(immediateSellPrice)} [ {FormatPrice(splitProfit)} ]");
