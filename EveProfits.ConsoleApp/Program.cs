@@ -71,7 +71,9 @@ while (true)
         Console.Write($"{ore.type.PadRight(40)}{Math.Floor(ore.amount).ToString().PadRight(10)}{FormatPrice(ore.totalBuyPrice).PadLeft(20)}{FormatPrice(ore.itemBoughtFor).PadLeft(20)} [ {ore.BoughtForPercentage.ToString("0.00")} ]");
 
         var immediateSellPrice = allOrePrices.First(x => x.Type == ore.type).SellPrice;
+        var immediateBuyPrice = allOrePrices.First(x => x.Type == ore.type).BuyPrice;
         var totalImmediateSellPrice = immediateSellPrice * ore.amount;
+        var totalImmediateBuyPrice = immediateBuyPrice * ore.amount;
 
         var immediateSplitPrice = allOrePrices.First(x => x.Type == ore.type).SplitPrice;
         var totalImmediateSplitPrice = immediateSplitPrice * ore.amount;
@@ -83,10 +85,13 @@ while (true)
 
         Console.Write($"{FormatPrice(Math.Ceiling(ore.MinimumSellPrice)).ToString().PadLeft(20)} - {FormatPrice(Math.Ceiling(ore.MinimumSellPriceForOne)).PadRight(10)}");
         Console.Write("".PadLeft(6));
-        Console.Write($"{FormatPrice(Math.Floor(totalImmediateSellPrice - ore.MinimumSellPrice))}".PadRight(10));
+        Console.Write($"{FormatPrice(Math.Floor(totalImmediateSellPrice - (totalImmediateSellPrice * 4.6m / 100m) - ore.MinimumSellPrice))}".PadRight(10));
         Console.Write("".PadLeft(6));
 
         Console.ForegroundColor = ConsoleColor.White;
+        Console.Write($"{FormatPrice(Math.Floor(totalImmediateBuyPrice - ore.totalBuyPrice))}".PadRight(10));
+        Console.Write($"".PadRight(5));
+
         Console.Write($"{FormatPrice(totalImmediateSellPrice)} - {FormatPrice(immediateSellPrice)} [ {FormatPrice(splitProfit)} ]");
 
         var oneItemBoughtFor = ore.itemBoughtFor / ore.amount;
