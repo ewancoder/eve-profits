@@ -83,7 +83,13 @@ public sealed class JaniceApiClient : IJaniceApiClient
         "Compressed Rich Plagioclase",
         "Compressed Plagioclase",
         "Compressed Condensed Scordite",
-        "Compressed Scordite"
+        "Compressed Scordite",
+        "Compressed Ducinium",
+        "Compressed Glacial Mass",
+        "Compressed Kernite",
+        "Compressed Obsidian Ochre",
+        "Compressed Pellucid Crokite",
+        "Compressed Ytirium"
     };
 
     public JaniceApiClient(IHttpClientFactory httpClientFactory)
